@@ -9,17 +9,29 @@ object camion {
 		
 //---cargar y descargar---------------------
 	method cargarUnaCosa(cosa) {
-		if(self.noEstaEnElCamion(cosa)) cosas.add(cosa)
+		if(!self.estaEnElCamion(cosa)){
+			cosas.add(cosa)
+		} 
 	}
 
 	method descargarUnaCosa(cosa) {
-		if(self.noEstaVacio())cosas.remove(cosa)
+		if(self.noEstaVacioYestaEnElCamion(cosa)){
+			cosas.remove(cosa)
+		}
 	}
 
 
+
 //---------------------------------------------
-	method noEstaEnElCamion(cosa) {
-		return !(cosas.contains(cosa))
+
+
+
+	method noEstaVacioYestaEnElCamion(cosa) {
+		return self.noEstaVacio() && self.estaEnElCamion(cosa)
+	}
+
+	method estaEnElCamion(cosa) {
+		return cosas.contains(cosa)
 	}
 
 	method noEstaVacio() {
@@ -30,20 +42,16 @@ object camion {
 //------- Todo peso par-----------
 
 	method laCargaEsPesoPar() {
-		return cosas.all({cosa => self.esPar(cosa)})
+		return cosas.all({cosa => cosa.esPar()})
 	}
 
-	method esPar(cosa) {
-		return (cosa.peso() % 2) == 0
-	}
+
 //------------Hay alguno que pesa ------------------
 	method laCargaPesaCiertaCantidad(cantidad) {
-		return cosas.any({cosa => self.pesaIgualLaCosa(cantidad,cosa)})
+		return cosas.any({cosa => cosa.pesaIgualLaCosa(cantidad)})
 	}
 
-	method pesaIgualLaCosa(cantidad,cosa) {
-		return cosa.peso() == cantidad
-	}
+
 
 //-----------------### Peso y exceso de peso----------------------------------
 
@@ -55,32 +63,30 @@ object camion {
 		return cosas.sum({cosa => cosa.peso()})
 	}
 
-	method ecedioElPesoMaximo() {
-		return self.pesoTotal() > self.pesoMaximo()
+	method exedioElPesoMaximo() {
+		return self.pesoTotal() > self.pesoMaximoAceptable()
 	}
 
-	method pesoMaximo() {
+	method pesoMaximoAceptable() {
 		return 2500
 	}
 
 //---------------- El de nivel------------------------------------
 
 	method encontrarCosaConNivel(nivel) {
-		return cosas.find({cosa => self.tieneNivel(cosa,nivel)})
+		return cosas.find({cosa => cosa.tieneNivel(nivel)})
 	}
 
-	method tieneNivel(cosa,nivel) {
-		return cosa.nivelPeligrosidad() == nivel
-	}
+
 //--------------------### Cosas peligrosas-----------------------
 
 
 	method cosasQueSuperanElNivelDePeligrosidad(nivel) {
-		return cosas.filter({cosa=> cosa.nivelPeligrosidad()>nivel})
+		return cosas.filter({cosa=> cosa.superaElNivelDePeligrosidadIndicado(nivel)})
 	}
 
 	method cosasMasPeligrosasQue(_cosa) {
-		return self.cosasQueSuperanElNivelDePeligrosidad(_cosa.nivelPeligrosidad())
+		return cosas.filter({cosa => cosa.esMasPeligrosaQue(_cosa)})
 	}
 
 
@@ -88,7 +94,7 @@ object camion {
 //------------------------### Puede circular en ruta------------------
 
 	method puedeCircularEnUnaRuta(nivel){
-		return	!(self.ecedioElPesoMaximo()) && !(self.hayCosasQueSuperanElNivelDePeligrosidad(nivel))
+		return	!(self.exedioElPesoMaximo()) && !(self.hayCosasQueSuperanElNivelDePeligrosidad(nivel))
 	}
 
 	method hayCosasQueSuperanElNivelDePeligrosidad(nivel) {
@@ -99,17 +105,10 @@ object camion {
 
 	method hayAlgunaCosaQuePeseEntre(min,max) {
 		
-		return cosas.any({cosa => self.cosaPesaEnUnMinimo(cosa,min) && self.cosaPesaEnUnMaximo(cosa,max)})
+		return cosas.any({cosa => cosa.tieneAlgoQuePeseEntre(cosa,min,max) })
 
 	}
 
-	method cosaPesaEnUnMinimo(cosa,min) {
-		return cosa.peso() >= min
-	}
-
-	method cosaPesaEnUnMaximo(cosa,max) {
-		return cosa.peso() <= max
-	}
 
 
 //----------------------### Cosa más pesada------------------

@@ -17,7 +17,7 @@ object caminosVecinales {
         return camion.pesoTotal() <= pesoMaximo
     }
 
-    method cambiarPesoMaximo(valor) {
-        pesoMaximo = valor
+    method pesoMaximo(_peso) {
+        pesoMaximo = _peso
     }
 }
